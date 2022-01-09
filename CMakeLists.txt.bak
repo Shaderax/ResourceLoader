@@ -25,10 +25,7 @@ add_subdirectory(Sources)
 target_include_directories( "AssetLoader" PUBLIC "Sources" )
 #add_subdirectory(ThirdParty)
 
-if (${AL_ENABLE_TESTS})
-	message("Test Enabled")
-	enable_testing()
-
+if (${AL_ENABLE_TESTS })
 	add_subdirectory( "Tests/Dummy" )
 endif ()
 
