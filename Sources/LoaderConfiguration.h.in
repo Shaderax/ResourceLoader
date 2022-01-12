@@ -1,1 +1,3 @@
-#cmakedefine SOURCE_DIR "@SOURCE_DIR@"
+#pragma once
+
+#cmakedefine RESOURCE_PATH "@RESOURCE_PATH@"

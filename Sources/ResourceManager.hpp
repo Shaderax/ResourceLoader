@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ResourceMap.hpp"
 #include "IImporter.hpp"
 #include <list>
 #include <unordered_map>
@@ -25,22 +24,12 @@ public:
 	}
 
 	template<class T>
-	IImporter* GetValidImporter(void)
+	T& Load(std::string path)
 	{
-		for (IImporter* imp : mImporters)
-		{
-			if (imp->GetTypeId() == ClassTypeId<ResourceManager>::GetId<T>())
-				return (imp);
-		}
+		std::string ext = path.substr(path.find_last_of(".") + 1);
 
-		return (nullptr);
-	}
-
-	template<class T>
-	T* Load(std::string path)
-	{
-		T* ret = nullptr;
-		IImporter* imp = GetValidImporter<T>();
+		T* resource = nullptr;
+		IImporter* imp = GetValidImporter<T>(ext);
 
 		if (!imp)
 		{
@@ -49,21 +38,26 @@ public:
 		}
 		else
 		{
-			if (imp->Import(path))
-				ret = GetResourceMap<T>()[path];
+			resource = static_cast<T*>(imp->Import(path));
+			if (resource != nullptr)
+			{
+				GetResourceMap<T>().emplace(std::make_pair(path, resource));
+			}
 			else
 			{
 				std::cout << "Fail Load" << std::endl;
 				exit(-1);
 			}
 		}
-		return (ret);
+		return (*resource);
 	}
 
 	template<class T>
 	void Unload(std::string path)
 	{
-		IImporter* imp = GetValidImporter<T>();
+		std::string ext = path.substr(path.find_last_of(".") + 1);
+
+		IImporter* imp = GetValidImporter<T>(ext);
 
 		if (!imp)
 		{
@@ -72,16 +66,42 @@ public:
 		}
 		else
 		{
-			if (imp->Unload(path))
-			{
-			}
-			else
-			{
-				std::cout << "Fail UnLoad" << std::endl;
-				exit(-1);
-			}
+			imp->Unload(path);
+			delete GetResourceMap<T>()[path];
+			GetResourceMap<T>().erase(path);
 		}
 	}
+
+private:
+
+	template<class T>
+	IImporter* GetValidImporter(std::string& ext)
+	{
+		for (IImporter* imp : mImporters)
+		{
+			if (imp->GetTypeId() == ClassTypeId<ResourceManager>::GetId<T>())
+			{
+				if (imp->IsExtMandatory())
+				{
+					if (imp->IsExtSupported(ext))
+						return imp;
+				}
+				else
+				{
+					return imp;
+				}
+			}
+		}
+
+		return (nullptr);
+	}
+
+	template < typename T >
+		std::unordered_map<std::string, T*>& GetResourceMap(void)
+		{
+			static std::unordered_map<std::string, T*> mMap;
+			return (mMap);
+		}
 
 	std::list<IImporter*>	mImporters;
 };
