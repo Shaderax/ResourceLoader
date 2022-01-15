@@ -1,6 +1,5 @@
 #include "ResourceManager.hpp"
 #include "TextureImporter.hpp"
-#include "LoaderConfiguration.h"
 
 int main()
 {

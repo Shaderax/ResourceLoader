@@ -30,6 +30,7 @@ if (${AL_ENABLE_TESTS})
 	enable_testing()
 
 	add_subdirectory( "Tests/Dummy" )
+	add_subdirectory( "Tests/RefactoTest" )
 endif ()
 
 
