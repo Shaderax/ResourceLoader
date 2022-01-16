@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.11...3.19)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
-project(AssetLoader
+project(ResourceLoader
 		VERSION 0.0.1
 		LANGUAGES CXX)
 
@@ -22,7 +22,7 @@ include("CMake/CompilersOptions.cmake")
 include( "CMake/ProjectTemplate.cmake" )
 
 add_subdirectory(Sources)
-target_include_directories( "AssetLoader" PUBLIC "Sources" )
+target_include_directories( "ResourceLoader" PUBLIC "Sources" )
 #add_subdirectory(ThirdParty)
 
 if (${AL_ENABLE_TESTS})
