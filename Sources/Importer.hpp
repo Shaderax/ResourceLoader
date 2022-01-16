@@ -1,6 +1,11 @@
 #pragma once
 
+#include "ClassTypeId.hpp"
 #include <string>
+
+class ResourceManager;
+
+#define TYPE_HANDLE(x) ClassTypeId<ResourceManager>::GetId<x>()
 
 class IImporter
 {

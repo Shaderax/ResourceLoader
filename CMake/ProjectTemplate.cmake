@@ -16,4 +16,5 @@ if (PRJ_TEMPLATE_LINKER_FLAGS_RELEASE)
 	set_target_properties( "ProjectTemplate" PROPERTIES INTERFACE_LINK_OPTIONS_RELEASE ${PRJ_TEMPLATE_LINKER_FLAGS_RELEASE} )
 endif ()
 
+set_target_properties( "ProjectTemplate" PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES )
 target_compile_features( "ProjectTemplate" INTERFACE cxx_std_20 )

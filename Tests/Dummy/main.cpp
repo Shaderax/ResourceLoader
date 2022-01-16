@@ -16,3 +16,8 @@ int main()
 
 	return 0;
 }
+/*
+	Quand [0]'/' : On colle post RESOURCE_PATH/()
+	Quand [0-1]"./" : On colle post RESOURCE_PATH/()
+	En vrai a quelle moment on fait autre chose que juste paste pre path ?
+*/

@@ -6,6 +6,8 @@
 #include <vector>
 #include <array>
 
+#define MAX_MAPS 64
+
 class IResourceMap
 {
 public:

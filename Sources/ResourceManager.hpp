@@ -5,10 +5,8 @@
 #include <unordered_map>
 #include <iostream>
 #include "ClassTypeId.hpp"
-
-#define MAX_MAPS 64
-
-#define TYPE_HANDLE(x) ClassTypeId<ResourceManager>::GetId<x>()
+#include "ResourceMap.hpp"
+#include "LoaderConfiguration.h"
 
 class ResourceManager
 {
@@ -32,13 +30,15 @@ public:
         TResourceMap<T>* resMap = mMaps.Get<T>();
 		T* resource = nullptr;
 
+		path = RESOURCE_PATH + path;
+
         if (resMap != nullptr)
         {
             std::unordered_map<std::string, T*>& map = resMap->GetMap();
 
             auto res = map.find(path);
 			if (res != map.end())
-                resource = map[path];
+				resource = map[path];
         }
         else
         {
@@ -74,6 +74,8 @@ public:
 	void Unload(std::string path)
 	{
 		std::string ext = path.substr(path.find_last_of(".") + 1);
+
+		path = RESOURCE_PATH + path;
 
 		IImporter* imp = GetValidImporter<T>(ext);
 
