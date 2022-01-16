@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ResourceManager.hpp"
-#include "IImporter.hpp"
+#include "Importer.hpp"
 #include "ClassTypeId.hpp"
 
 struct Image
@@ -16,27 +16,26 @@ struct Image
 	unsigned int mSize;
 };
 
-class FakeTextureImporter : public IImporter
+class FakeTextureImporter : public TImporter<Image>
 {
 public:
-	FakeTextureImporter(void) { };
+	FakeTextureImporter(void)
+    {
+
+    };
+
 	~FakeTextureImporter(void) {};
 
-	uint32_t GetTypeId(void)
-	{
-		return (ClassTypeId<ResourceManager>::GetId<Image>());
-	}
-
-	void* Import(std::string path)
+	Image* Import(std::string path)
 	{
 		Image* img = new Image(nullptr, 400);
 
 		return (img);
 	}
 
-	void Unload(std::string path)
+	void Unload(std::string path, Image* resource)
 	{
-		//Image* img = ResourceMap::Get<Image>()[path];
+		delete resource;
 	}
 
 	bool IsExtSupported(std::string& ext)

@@ -54,7 +54,8 @@ public:
     }
 };
 
-// Handle Resource not Importer
+#define TYPE_HANDLE(x) ClassTypeId<ResourceManager>::GetId<x>()
+
 class ResourceMaps
 {
     std::array<IResourceMap*, MAX_MAPS> mMaps{0};
@@ -125,14 +126,11 @@ public:
 
 class IImporter
 {
-    TypeId HandledType;
 public:
-    IImporter(TypeId id) : HandledType(id) {}
     virtual ~IImporter() {};
-	virtual TypeId GetTypeId(void) {return HandledType;};
-	virtual void* Import(std::string path) = 0;
-	// Resource destroy after this function
-	virtual void Unload(std::string path) = 0;
+	virtual TypeId GetTypeId(void) = 0;
+	virtual void* _Import(std::string path) = 0;
+	virtual void _Unload(std::string path, void* resource) = 0;
 	virtual bool IsExtSupported(std::string& ext) = 0;
 	virtual bool IsExtMandatory() = 0;
 };
@@ -163,7 +161,8 @@ public:
         {
             std::unordered_map<std::string, T*>& map = resMap->GetMap();
 
-            if (map.contains(path))
+            auto res = map.find(path);
+			if (res != map.end())
                 resource = map[path];
         }
         else
@@ -179,7 +178,7 @@ public:
 		    }
     		else
     		{
-    			resource = static_cast<T*>(imp->Import(path));
+    			resource = static_cast<T*>(imp->_Import(path));
 
     			if (resource != nullptr)
     			{
@@ -210,16 +209,16 @@ public:
 		}
 		else
 		{
-		    T* resource = nullptr;
             TResourceMap<T>* resMap = mMaps.Get<T>();
 
             if (resMap)
             {
                 std::unordered_map<std::string, T*>& map = resMap->GetMap();
-                if (map.contains(path))
+
+				auto res = map.find(path);
+                if (res != map.end())
                 {
-			        imp->Unload(path);
-                    delete map[path];
+			        imp->_Unload(path, map[path]);
 	    		    map.erase(path);
                 }
             }
@@ -253,7 +252,34 @@ private:
     std::list<IImporter*> mImporters;
 };
 
-#define TYPE_HANDLE(x) ClassTypeId<ResourceManager>::GetId<x>()
+template<typename T>
+class TImporter : public IImporter
+{
+	typedef T TType;
+    TypeId HandledType;
+
+	void* _Import(std::string path)
+	{
+		return Import(path);
+	}
+
+	virtual void _Unload(std::string path, void* resource)
+	{
+		Unload(path, static_cast<TType*>(resource));
+	}
+
+public:
+    TImporter() : HandledType(TYPE_HANDLE(T)) {}
+    virtual ~TImporter() {};
+
+	TypeId GetTypeId(void) {return HandledType;};
+
+	virtual TType* Import(std::string path) = 0;
+	virtual void Unload(std::string path, TType* resource) = 0;
+
+	virtual bool IsExtSupported(std::string& ext) = 0;
+	virtual bool IsExtMandatory() = 0;
+};
 
 /////////////////////////////////////////////
 
@@ -269,26 +295,26 @@ struct Image
 	unsigned int mSize;
 };
 
-class FakeTextureImporter : public IImporter
+class FakeTextureImporter : public TImporter<Image>
 {
 public:
-	FakeTextureImporter(void) : IImporter(TYPE_HANDLE(Image))
+	FakeTextureImporter(void)
     {
 
     };
 
 	~FakeTextureImporter(void) {};
 
-	void* Import(std::string path)
+	Image* Import(std::string path)
 	{
 		Image* img = new Image(nullptr, 400);
 
 		return (img);
 	}
 
-	void Unload(std::string path)
+	void Unload(std::string path, Image* resource)
 	{
-		//Image* img = ResourceMap::Get<Image>()[path];
+		delete resource;
 	}
 
 	bool IsExtSupported(std::string& ext)
@@ -315,5 +341,8 @@ int main()
 
     manager.Unload<Image>("viv");
 
-    return 0;
+	return 0;
 }
+/*
+	Me faut le define du path. 
+*/
