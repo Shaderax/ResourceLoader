@@ -19,7 +19,7 @@ set( AL_ENABLE_STB ON CACHE BOOL "Use stb lib (optional, required for tests" )
 
 include("CMake/CompilersOptions.cmake")
 
-include( "CMake/ProjectTemplate.cmake" )
+#include( "CMake/ProjectTemplate.cmake" )
 
 add_subdirectory(Sources)
 target_include_directories( "ResourceLoader" PUBLIC "Sources" )
